@@ -7,30 +7,24 @@ CREATE TABLE exercises (
     name VARCHAR(50) NOT NULL,
     category VARCHAR(50) NOT NULL,
     body_part VARCHAR(50) NOT NULL,
-    equipment_needed BOOLEAN NOT NULL DEFAULT FALSE,
     notes VARCHAR(255) DEFAULT NULL
 );
 
-INSERT INTO exercises (name, category, body_part)
-VALUES ('Running', 'Cardio','Legs'),
-       ('Pushups', 'Strength','Upper body'),
-       ('Left side plank', 'Strength','Core'),
-       ('Right side plank', 'Strength','Core'),
-       ('Plank', 'Strength','Core'),
-       ('Chair dips', 'Strength','Arms'),
-       ('Squats', 'Strength','Legs'),
-       ('Jumping squats', 'Strength','Legs'),
-       ('Glute bridges', 'Strength','Legs'),
-       ('Right lunges', 'Strength','Legs'),
-       ('Left lunges', 'Strength','Legs'),
-       ('Star Jumps', 'Cardio','Legs and Arms'),
-       ('Walking', 'Cardio','Legs'),
-       ('Rock climbing', 'Strength','Full Body');
-
-
-CREATE TABLE equipment(
-    equipment_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    notes VARCHAR(255)
+CREATE TABLE workouts(
+    workout_id INT AUTO_INCREMENT PRIMARY KEY,
+    workout_date DATE NOT NULL,
+    duration TIME NOT NULL,
+    notes VARCHAR(255) DEFAULT NULL
 );
 
+CREATE TABLE workout_items(
+    workout_id INT NOT NULL,
+    exercise_id INT NOT NULL,
+    reps INT DEFAULT NULL,
+    sets INT DEFAULT NULL,
+    distance DECIMAL(3, 1) DEFAULT NULL,
+    PRIMARY KEY (workout_id, exercise_id),
+    FOREIGN KEY (workout_id) REFERENCES workouts(workout_id) ON DELETE CASCADE,
+    FOREIGN KEY (exercise_id) REFERENCES exercises(exercise_id) ON DELETE CASCADE
+
+)
