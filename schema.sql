@@ -13,6 +13,7 @@ CREATE TABLE exercises (
 CREATE TABLE workouts(
     workout_id INT AUTO_INCREMENT PRIMARY KEY,
     workout_date DATE NOT NULL,
+    workout_time TIME NOT NULL,
     duration TIME NOT NULL,
     notes VARCHAR(255) DEFAULT NULL
 );
@@ -27,4 +28,7 @@ CREATE TABLE workout_items(
     FOREIGN KEY (workout_id) REFERENCES workouts(workout_id) ON DELETE CASCADE,
     FOREIGN KEY (exercise_id) REFERENCES exercises(exercise_id) ON DELETE CASCADE
 
-)
+);
+
+
+SELECT @@datadir;
