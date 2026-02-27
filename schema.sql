@@ -24,6 +24,7 @@ CREATE TABLE workout_items(
     reps INT DEFAULT NULL,
     sets INT DEFAULT NULL,
     distance DECIMAL(3, 1) DEFAULT NULL,
+    weight DECIMAL(3, 1) DEFAULT 00.0,
     PRIMARY KEY (workout_id, exercise_id),
     FOREIGN KEY (workout_id) REFERENCES workouts(workout_id) ON DELETE CASCADE,
     FOREIGN KEY (exercise_id) REFERENCES exercises(exercise_id) ON DELETE CASCADE
