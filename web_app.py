@@ -46,7 +46,7 @@ tab1, tab2, tab3 = st.tabs(["View Data", "New Workout", "New Exercise"])
 table = tab1.selectbox("Choose a table", table_names)
 with engine.connect() as conn:
     df = pd.read_sql(text(f"SELECT * FROM `{table}`"), conn)
-tab1.dataframe(df, height='content', width='stretch')
+tab1.dataframe(df, height='content', width='stretch', hide_index=True)
 
 # ~~~ Tab 2 widgets ~~~ #
 if "last_sql" not in st.session_state:
@@ -90,7 +90,7 @@ with tab2.form("New Workout", clear_on_submit=True, enter_to_submit=False, borde
         # Must convert duration to correct format
         duration_formatted = time.strftime('%H:%M:%S', time.gmtime(workout_duration*60))
         # Create SQL to add workout
-        sql = (f"USE exercise;"
+        sql = (f"USE exercise;\n"
                f"INSERT INTO workouts(workout_date, duration, notes)\n"
                f"VALUES ('{workout_date}', '{duration_formatted}', {notes});\n"
                f"SET @workout_id = LAST_INSERT_ID();\n"
