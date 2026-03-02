@@ -1,12 +1,8 @@
-import math
-
 import streamlit as st
 import pandas as pd
 import datetime as dt
 import time
 import os
-from narwhals.sql import table
-from pyarrow import duration
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
@@ -49,6 +45,7 @@ with engine.connect() as conn:
 tab1.dataframe(df, height='content', width='stretch', hide_index=True)
 
 # ~~~ Tab 2 widgets ~~~ #
+tab2.markdown("### Add a new Workout ###")
 if "last_sql" not in st.session_state:
     st.session_state.last_sql = ""
 
@@ -57,7 +54,24 @@ if st.session_state.get("_reset_e_count", False):
     st.session_state._reset_e_count = False
 
 exercise_count = tab2.empty()
-e_count = exercise_count.number_input("How many exercises?", 1, 10, key="e_count")
+e_count = exercise_count.number_input("How many exercises?", 1, 25, key="e_count")
+
+
+
+with tab2:
+
+    for i in range(e_count):
+        c1, c2, c3, c4, c5 = st.columns([3, 1, 1, 1, 1])
+        # Create widgets with a key so they can be distinguised from other widgets in the loop
+        exercise = c1.selectbox(f"Exercise {i+1}", exercise_options, format_func=lambda x: x[1], key=f"exercise{i}")
+        # If exercise type = running or walking then dont show reps or weight
+        if exercise[1] not in ["Walking", "Running"]:
+
+            reps = c2.number_input("Reps", value=0, key=f"reps{i}")
+            sets = c3.number_input("Sets", value=0, key=f"sets{i}")
+        else:
+            distance = c5.number_input("Distance (Km)", value=0, key=f"distance{i}")
+        weight = c4.number_input("Weight (Kg)", value=0, key=f"weight{i}")
 
 with tab2.form("New Workout", clear_on_submit=True, enter_to_submit=False, border=True, width="stretch", height="content"):
     workout_date = st.date_input("Workout date", value=dt.date.today())
@@ -67,21 +81,25 @@ with tab2.form("New Workout", clear_on_submit=True, enter_to_submit=False, borde
     workout_notes = st.text_input("Workout notes")
     notes = "NULL" if workout_notes.strip() == "" else '"' + workout_notes + '"'
 
-    st.markdown("### Exercises ###")
+
     items = []
     for i in range(e_count):
-        c1, c2, c3, c4 = st.columns([3,1,1,1])
+        ex_id, ex_name = st.session_state[f"exercise{i}"]  # tuple (id, name)
 
-        # Create widgets with a key so they can be distinguised from other widgets in the loop
-        exercise = c1.selectbox(f"Exercise {i+1}", exercise_options, format_func=lambda x: x[1], key=f"exercise{i}")
-        reps = c2.number_input("Reps", value=0, key=f"reps{i}")
-        sets = c3.number_input("Sets", value=0, key=f"sets{i}")
-        distance = c4.number_input("Distance (Km)", value=0, key=f"distance{i}")
+        if ex_name in ("Walking", "Running"):
+            reps = 0
+            sets = 0
+            distance = st.session_state.get(f"distance{i}", 0)
+        else:
+            reps = st.session_state.get(f"reps{i}", 0)
+            sets = st.session_state.get(f"sets{i}", 0)
+            distance = 0
 
         items.append({
-            "exercise_id": exercise[0],
+            "exercise_id": ex_id,
             "reps": "NULL" if reps == 0 else reps,
             "sets": "NULL" if sets == 0 else sets,
+            "weight": weight,
             "distance": "NULL" if distance == 0 else distance
         })
 
@@ -91,13 +109,13 @@ with tab2.form("New Workout", clear_on_submit=True, enter_to_submit=False, borde
         duration_formatted = time.strftime('%H:%M:%S', time.gmtime(workout_duration*60))
         # Create SQL to add workout
         sql = (f"USE exercise;\n"
-               f"INSERT INTO workouts(workout_date, duration, notes)\n"
-               f"VALUES ('{workout_date}', '{duration_formatted}', {notes});\n"
+               f"INSERT INTO workouts(workout_date, duration, notes, workout_time)\n"
+               f"VALUES ('{workout_date}', '{duration_formatted}', {notes}, '{workout_time}');\n"
                f"SET @workout_id = LAST_INSERT_ID();\n"
-               f"INSERT INTO workout_items(workout_id, exercise_id, reps, sets, distance)\n"
+               f"INSERT INTO workout_items(workout_id, exercise_id, reps, sets, distance, weight)\n"
                f"VALUES")
         for item in items:
-            sql += f"\n(@workout_id, {item["exercise_id"]}, {item["reps"]}, {item["sets"]}, {item["distance"]}),"
+            sql += f"\n(@workout_id, {item["exercise_id"]}, {item["reps"]}, {item["sets"]}, {item["distance"]}, {item["weight"]}),"
         sql = sql[:-1]
         sql += ";"
 
