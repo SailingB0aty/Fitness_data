@@ -6,7 +6,7 @@ A database structure combined with an interactive web app to assist with trackin
 
 See below the web UI created with streamlit for Python (https://github.com/streamlit/streamlit)
 
-![screenshot](demo/new_workout.jpg)
+![screenshot](demo/new_workout_2.jpg)
 
 ![screenshot](demo/view_data.jpg)
 
