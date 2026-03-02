@@ -13,9 +13,9 @@ CREATE TABLE exercises (
 CREATE TABLE workouts(
     workout_id INT AUTO_INCREMENT PRIMARY KEY,
     workout_date DATE NOT NULL,
-    workout_time TIME NOT NULL,
     duration TIME NOT NULL,
-    notes VARCHAR(255) DEFAULT NULL
+    notes VARCHAR(255) DEFAULT NULL,
+    workout_time TIME NOT NULL
 );
 
 CREATE TABLE workout_items(
