@@ -9,3 +9,5 @@ See below the web UI created with streamlit for Python (https://github.com/strea
 ![screenshot](demo/new_workout.jpg)
 
 ![screenshot](demo/view_data.jpg)
+
+![screenshot](demo/new_exercise.jpg)
