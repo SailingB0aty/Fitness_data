@@ -10,4 +10,4 @@ See below the web UI created with streamlit for Python (https://github.com/strea
 
 ![screenshot](demo/view_data.jpg)
 
-![screenshot](demo/new_exercise.jpg)
+![screenshot](demo/add_exercise.jpg)
