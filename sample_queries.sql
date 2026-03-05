@@ -36,3 +36,63 @@ VALUES (CURRENT_DATE, '00:28:31', 'Started as run, turned into walk after knee p
 SET @workout_id = LAST_INSERT_ID();
 INSERT INTO workout_items(workout_id, exercise_id, reps, sets, distance)
 VALUE (@workout_id, @walking, NULL, NULL, 03.0);
+
+-- Retroactively added workout_time column
+ALTER TABLE workouts
+ADD COLUMN workout_time TIME NOT NULL;
+
+-- Retroactively added weight column
+ALTER TABLE workout_items
+ADD COLUMN weight DECIMAL(3, 1) DEFAULT 00.0;
+
+
+
+-- Replace Left Lunges and Right Lunges with one column, Lunges.
+-- Check how symetrical the Right and Left entries are (They are perfectly symetrical)
+SELECT e.exercise_id, e.name, wi.reps, wi.sets, w.workout_date
+FROM workout_items wi
+JOIN exercises e USING(exercise_id)
+JOIN workouts w USING(workout_id)
+WHERE e.name IN ("Left Lunges", "Right Lunges");
+
+-- Add lunges exercise
+INSERT INTO exercises(name, category, body_part, notes)
+VALUE("Lunges", "Strength", "Legs", DEFAULT);
+
+-- Get the ID of new lunges exercise
+SELECT exercises.exercise_id INTO @lunges_id
+FROM exercises
+WHERE name = "Lunges";
+
+-- Insert new Lunges exercise item for each appearance of lunges already there
+INSERT INTO workout_items(workout_id, exercise_id, reps, sets, distance, weight)
+SELECT
+    wi.workout_id,
+@lunges_id,
+    wi.reps,
+    wi.sets,
+    wi.distance,
+    wi.weight
+FROM workout_items wi
+JOIN exercises e USING(exercise_id)
+WHERE e.name = "Left Lunges";
+
+-- Remove old instances of left and right lunges
+DELETE wi
+FROM workout_items wi
+JOIN exercises e USING(exercise_id)
+WHERE e.name IN ("Left Lunges", "Right Lunges");
+
+-- Remove right and left lunges from exercises
+DELETE e
+FROM exercises e
+WHERE e.name IN ("Left Lunges", "Right Lunges");
+
+
+-- Remove test workouts
+DELETE w
+FROM workouts w
+WHERE w.workout_id IN (5, 7, 14, 15, 16, 17, 18, 19);
+DELETE wi
+FROM workout_items wi
+WHERE wi.workout_id IN (5, 7, 14, 15, 16, 17, 18, 19);
