@@ -41,7 +41,32 @@ tab1, tab2, tab3 = st.tabs(["View Data", "New Workout", "New Exercise"])
 # ~~~ Tab 1 widgets ~~~ #
 table = tab1.selectbox("Choose a table", table_names)
 with engine.connect() as conn:
-    df = pd.read_sql(text(f"SELECT * FROM `{table}`"), conn)
+    if table == "workouts":
+        sql = (f"SELECT\n"
+               f"workout_date AS Date,\n"
+               f"duration AS Duration,\n"
+               f"notes AS Notes\n"
+               f"FROM {table};")
+    elif table == "exercises":
+        sql = (f"SELECT\n"
+               f"name AS Name,\n"
+               f"category AS Category,\n"
+               f"body_part AS 'Body Part'\n"
+               f"FROM {table};")
+    elif table == "workout_items":
+        sql = (f"SELECT\n"
+               f"e.name AS Exercise,\n"
+               f"w.workout_date AS Date,\n"
+               f"wi.reps AS Reps,\n"
+               f"wi.sets AS Sets,\n"
+               f"wi.distance AS Distance,\n"
+               f"wi.weight AS Weight\n"
+               f"FROM {table} wi\n"
+               f"JOIN exercises e USING(exercise_id)\n"
+               f"JOIN workouts w USING(workout_id)\n"
+               f"ORDER BY e.exercise_id, w.workout_id;")
+
+    df = pd.read_sql(text(sql), conn)
 tab1.dataframe(df, height='content', width='stretch', hide_index=True)
 
 # ~~~ Tab 2 widgets ~~~ #
