@@ -7,7 +7,6 @@ CREATE TABLE exercises (
     name VARCHAR(50) NOT NULL,
     category VARCHAR(50) NOT NULL,
     body_part VARCHAR(50) NOT NULL,
-    notes VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE workouts(
